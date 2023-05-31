@@ -2,7 +2,6 @@ package peaksoft.spring_boot_rest_api.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import peaksoft.spring_boot_rest_api.dto.UserRequest;
 import peaksoft.spring_boot_rest_api.dto.UserResponse;
@@ -23,12 +22,16 @@ public class UserService {
     public UserResponse create(UserRequest request) {
         System.out.println("I'm user service");
         User user = new User();
-        user.setUsername(request.getUsername());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.valueOf(request.getRoleName()));
+
+        if (request.getRoleName() == null) {
+            user.setRole(Role.STUDENT);
+        } else {
+            user.setRole(Role.valueOf(request.getRoleName()));
+        }
         user.setLocalDate(LocalDate.now());
         repository.save(user);
         System.out.println("I'm done in user service");
@@ -62,7 +65,6 @@ public class UserService {
 
     public UserResponse update(Long userId, UserRequest request) {
         User user = repository.findById(userId).get();
-        user.setUsername(request.getUsername());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
@@ -73,7 +75,8 @@ public class UserService {
     }
 
     public String delete(Long userId) {
-        repository.deleteById(userId);
+        repository.delete(repository.findById(userId).get());
+//        repository.deleteById(userId);
         return "Successfully deleted user with id: " + userId;
     }
 }

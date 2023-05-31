@@ -24,13 +24,17 @@ public class UserController {
         return userService.getUserById(userId);
     }
 
-    @PostMapping
-    public UserResponse create(@RequestBody UserRequest request) {
+    @PostMapping("addAdmin")
+    public UserResponse createAdmin(@RequestBody UserRequest request) {
         return userService.create(request);
 
     }
+    @PostMapping("addInstructor")
+    public UserResponse createInstructor(@RequestBody UserRequest request) {
+        return userService.create(request);
+    }
 
-    @PostMapping("{id}")
+    @PutMapping("{id}")
     public UserResponse update(@PathVariable("id") Long userId, @RequestBody UserRequest request) {
         return userService.update(userId, request);
 

@@ -15,7 +15,7 @@ import java.util.function.Function;
 public class JwtTokenUtil {
     @Value("java_moscow5")
     private String jwtSecret;
-    private final Long JWT_TOKEN_VALIDITY = 24 * 7 * 60 * 60 * 100l; //one week
+    private final Long JWT_TOKEN_VALIDITY = 24 * 7 *60* 60 * 60 * 100l; //one week
 
     public String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
@@ -37,11 +37,11 @@ public class JwtTokenUtil {
     }
 
     private <T> T getClaimFromToken(String token, Function<Claims, T> function) {
-        final Claims claims = getAllCLoimsFromToken(token);
+        final Claims claims = getAllClaimsFromToken(token);
         return function.apply(claims);
     }
 
-    private Claims getAllCLoimsFromToken(String token) {
+    private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
