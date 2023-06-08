@@ -49,7 +49,7 @@ public class CourseController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String deleteCourse(@PathVariable("id") Long id) {
         courseService.deleteCourse(id);
-        return "Successfully delete" + id;
+        return "Successfully  Course  deleted with id : " + id;
     }
     @GetMapping("search")
     public CourseResponseView getAllCompanies(@RequestParam(name = "text", required = false)

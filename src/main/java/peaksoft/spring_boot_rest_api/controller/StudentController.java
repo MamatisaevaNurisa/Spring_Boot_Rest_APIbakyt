@@ -53,7 +53,8 @@ public class StudentController {
         @Operation(summary = "Delete",description = "Admin can delete Student by id")
         @PreAuthorize("hasAuthority('ADMIN')")
         public String delete(@PathVariable("id") Long userId) {
-            return studentService.delete(userId);
+            studentService.delete(userId);
+            return "Successfully deleted Student with id : "+userId;
         }
 
     @GetMapping("search")
@@ -61,6 +62,5 @@ public class StudentController {
                                                @RequestParam int page,
                                                @RequestParam int size) {
         return studentService.searchAndPagination(text, page, size);
-
     }
-}
+    }

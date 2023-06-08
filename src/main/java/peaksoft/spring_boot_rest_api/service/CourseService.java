@@ -1,6 +1,7 @@
 package peaksoft.spring_boot_rest_api.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CourseService {
 
     private final CourseRepository courseRepository;
@@ -76,7 +78,13 @@ public class CourseService {
     }
 
     public void deleteCourse(Long id) {
-        courseRepository.deleteById(id);
+        Course course=courseRepository.findById(id).get();
+        if (!id.equals(course.getId())){
+            log.error("Course not found! ");
+
+        }else {
+        courseRepository.delete(course);
+    }
     }
 
 
@@ -112,7 +120,7 @@ public class CourseService {
 
     private List<Course> search(String text, Pageable pageable) {
         String name = text == null ? "" : text;
-        return courseRepository.searchAndPagination(name, pageable);
+        return courseRepository.searchAndPagination(name.toUpperCase(), pageable);
     }
 }
 

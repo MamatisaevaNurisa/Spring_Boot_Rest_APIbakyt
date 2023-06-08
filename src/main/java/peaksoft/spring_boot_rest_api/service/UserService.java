@@ -1,6 +1,7 @@
 package peaksoft.spring_boot_rest_api.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import peaksoft.spring_boot_rest_api.dto.UserRequest;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository repository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -74,9 +76,14 @@ public class UserService {
         return mapToResponse(user);
     }
 
-    public String delete(Long userId) {
-        repository.delete(repository.findById(userId).get());
-//        repository.deleteById(userId);
-        return "Successfully deleted user with id: " + userId;
+    public void delete(Long userId) {
+        User user = repository.findById(userId).get();
+        if (!userId.equals(user.getId())) {
+            log.error("User not found!");
+        } else {
+            repository.delete(repository.findById(userId).get());
+
+        }
     }
 }
+

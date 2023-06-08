@@ -49,7 +49,7 @@ public class GroupController {
     @Operation(summary = "Delete",description = "Admin can delete Group by id")
     public String deleteGroup(@PathVariable("id") Long id) {
        groupService.deleteGroup(id);
-        return "Successfully deleted group with id : " + id;
+        return "Successfully deleted Group with id : " + id;
     }
 
     @GetMapping("search")

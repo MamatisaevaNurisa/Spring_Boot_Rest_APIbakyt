@@ -10,6 +10,7 @@ import peaksoft.spring_boot_rest_api.dto.TeacherResponse;
 import peaksoft.spring_boot_rest_api.dto.TeacherResponseView;
 import peaksoft.spring_boot_rest_api.service.TeacherService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -52,14 +53,16 @@ public class TeacherController {
     @DeleteMapping("{id}")
     @Operation(summary = "Delete",description = "Admin can delete Student by id")
     public String delete(@PathVariable("id") Long teacherId) {
-        return teacherService.delete(teacherId);
+        teacherService.deleteTeacher(teacherId);
+
+        return "Successfully deleted Teacher with id : "+teacherId;
     }
 
     @GetMapping("search")
     public TeacherResponseView getAllCompanies(@RequestParam(name = "text", required = false) String text,
                                                @RequestParam int page,
                                                @RequestParam int size) {
-        return teacherService.searchAndPagination(text, page, size);
+        return teacherService.searchAndPagination(text,page,size) ;
 
     }
 }

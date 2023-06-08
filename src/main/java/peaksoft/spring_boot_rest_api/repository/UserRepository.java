@@ -7,16 +7,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import peaksoft.spring_boot_rest_api.entity.User;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("select  u from User u where  upper(u.firstName) like  concat('%',:text,'%')" +
-            "or  upper(u.lastName) like  concat('%',:text,'%')" +
-            "or  upper(u.role) like  concat('%',:text,'%')" +
-            "or  upper(u.studyFormation) like  concat('%',:text,'%')")
+    @Query("select  u from User u where upper(u.firstName) like  concat('%',:text,'%')" +
+            "or  upper(u.lastName) like  concat('%',:text,'%')  ")
     List<User>searchAndPagination(@Param("text")String  text, Pageable pageable);
 
 

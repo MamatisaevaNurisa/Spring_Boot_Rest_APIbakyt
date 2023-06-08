@@ -1,6 +1,7 @@
 package peaksoft.spring_boot_rest_api.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GroupService {
     private final GroupRepository groupRepository;
 
@@ -49,7 +51,13 @@ public class GroupService {
 
     public GroupResponse getGroupById(Long id) {
         Group group = groupRepository.findById(id).get();
-        return mapToResponse(group);
+        if (!id.equals(group.getId())){
+            log.error("Group not found");
+            throw new RuntimeException();
+        }else {
+            return mapToResponse(group);
+
+        }
     }
 
     public GroupResponse saveGroup(GroupRequest groupRequest) {
@@ -78,24 +86,27 @@ public class GroupService {
         group.setDateOfStart(groupRequest.getDateOfStart());
         group.setDateOfFinish(groupRequest.getDateOfFinish());
         group.setLocalDate(LocalDate.now());
-            List<Group> groups1 = new ArrayList<>();
-            groups1.add(group);
-            List<Course> courses1 = new ArrayList<>();
-            Course course = courseRepository.findById(groupRequest.getCourseId()).get();
-            courses1.add(course);
-            group.setCourses(courses1);
-            course.setGroups(groups1);
-        groupRepository.save(group);
+        List<Group> groups1 = new ArrayList<>();
+        groups1.add(group);
+        List<Course> courses1 = new ArrayList<>();
+        Course course = courseRepository.findById(groupRequest.getCourseId()).get();
+        courses1.add(course);
+        group.setCourses(courses1);
+        course.setGroups(groups1);
+        groupRepository.saveAndFlush(group);
         return mapToResponse(group);
 
     }
 
 
     public void deleteGroup(Long id) {
-        groupRepository.deleteById(id);
-
+        Group group=groupRepository.findById(id).get();
+        if(!id.equals(group.getId())){
+            log.error("Group not found !");
+        }else {
+            groupRepository.delete(group);
+        }
     }
-
     public GroupResponseView searchAndPagination(String text, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         GroupResponseView groupResponseView = new GroupResponseView();
@@ -115,6 +126,6 @@ public class GroupService {
 
     private List<Group> search(String text, Pageable pageable) {
         String name = text == null ? "" : text;
-        return groupRepository.searchAndPagination(text, pageable);
+        return groupRepository.searchAndPagination(name.toUpperCase(), pageable);
     }
 }

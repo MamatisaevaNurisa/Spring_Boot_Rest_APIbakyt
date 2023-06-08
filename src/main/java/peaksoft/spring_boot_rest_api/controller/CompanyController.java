@@ -48,7 +48,7 @@ public class CompanyController {
     @Operation(summary = "Delete",description = "Admin can delete Company by id")
     public String delete(@PathVariable("id") Long id) {
         companyService.deleteCompany(id);
-        return "Successfully delete" + id;
+        return "Successfully Company  deleted with id : " + id;
     }
     @GetMapping("search")
     public CompanyResponseView getAllCompanies(@RequestParam(name = "text",required = false)String text,

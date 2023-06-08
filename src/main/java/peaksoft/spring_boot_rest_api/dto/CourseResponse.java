@@ -1,10 +1,9 @@
 package peaksoft.spring_boot_rest_api.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import peaksoft.spring_boot_rest_api.entity.Company;
+import peaksoft.spring_boot_rest_api.entity.User;
 
 import java.time.LocalDate;
 

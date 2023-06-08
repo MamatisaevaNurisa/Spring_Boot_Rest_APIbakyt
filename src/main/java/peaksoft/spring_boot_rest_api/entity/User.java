@@ -1,5 +1,6 @@
 package peaksoft.spring_boot_rest_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,9 +13,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import static javax.persistence.CascadeType.*;
-import static javax.persistence.CascadeType.MERGE;
 
 @Entity
 @Table(name = "users")
@@ -32,23 +30,23 @@ public class User implements UserDetails {
     @Email
     private String email;
     private String password;
-    private  Boolean isActive=true;
-    private  Boolean isDeleted=false;
-    @Transient
-    private  Long groupId;
-//    @Transient
-//    private Long courseId;
-//    @Transient
-//    private  Long studentId;
+    private Boolean isActive = true;
+    private Boolean isDeleted = false;
     @CreatedDate
     private LocalDate localDate;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @OneToOne(cascade = {REFRESH,PERSIST,DETACH,MERGE})
-    private  Course course;
+    @OneToOne(cascade = {CascadeType.PERSIST,
+            CascadeType.REFRESH,
+            CascadeType.DETACH,
+            CascadeType.MERGE})
+    @JsonIgnore
+    @JoinColumn(name = "course_id")
+    private Course course;
 
-    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH,CascadeType.PERSIST})
-    private  Group group;
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
+    @JsonIgnore
+    private Group group;
 
     @Column(name = "study_format")
     @Enumerated(EnumType.STRING)
@@ -63,8 +61,9 @@ public class User implements UserDetails {
         System.out.println(role.getAuthority());
         return authorities;
     }
+
     @Override
-    public  String getUsername(){
+    public String getUsername() {
         return email;
     }
 
@@ -86,5 +85,15 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void removeCourse() {
+        course.setTeacher(null);
+        setCourse(null);
+    }
+
+    public void addCourse(Course course) {
+        course.setTeacher(this);
+        setCourse(course);
     }
 }

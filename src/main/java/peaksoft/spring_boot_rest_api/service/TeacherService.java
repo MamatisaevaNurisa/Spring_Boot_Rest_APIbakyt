@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import peaksoft.spring_boot_rest_api.dto.TeacherRequest;
 import peaksoft.spring_boot_rest_api.dto.TeacherResponse;
 import peaksoft.spring_boot_rest_api.dto.TeacherResponseView;
-import peaksoft.spring_boot_rest_api.entity.*;
+import peaksoft.spring_boot_rest_api.entity.Course;
+import peaksoft.spring_boot_rest_api.entity.Role;
+import peaksoft.spring_boot_rest_api.entity.User;
 import peaksoft.spring_boot_rest_api.repository.CourseRepository;
 import peaksoft.spring_boot_rest_api.repository.UserRepository;
 
@@ -40,6 +42,10 @@ public class TeacherService {
 
     public TeacherResponse creatTeacher(TeacherRequest teacherRequest) {
         Course course = courseRepository.findById(teacherRequest.getCourseId()).get();
+        if (course.getTeacher() != null) {
+            log.error("Course all ready exists Teacher is:  " + course.getTeacher().getFirstName());
+            throw new EntityExistsException("Course all ready exists!");
+        }
         User user = new User();
         user.setFirstName(teacherRequest.getFirstName());
         user.setLastName(teacherRequest.getLastName());
@@ -48,15 +54,7 @@ public class TeacherService {
         user.setRole(Role.INSTRUCTOR);
         user.setLocalDate(LocalDate.now());
         user.setCourse(course);
-        if (course.getTeacher() != null) {
-
-            log.error("Course all ready exists Teacher is:  " + course.getTeacher().getFirstName());
-            throw new EntityExistsException("Course all ready exists!");
-        } else {
-            user.setCourse(course);
-            course.setTeacher(user);
-            userRepository.save(user);
-        }
+        userRepository.save(user);
         return mapToResponse(user);
     }
 
@@ -87,7 +85,7 @@ public class TeacherService {
 
     public TeacherResponse getTeacherById(Long id) {
         User user = userRepository.findById(id).get();
-        if (id != user.getId()) {
+        if (!id.equals(user.getId()) && user.getRole() == Role.INSTRUCTOR) {
             log.error("not found");
             throw new UsernameNotFoundException("Not found");
 
@@ -103,7 +101,7 @@ public class TeacherService {
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.valueOf(request.getRoleName()));
+        user.setRole(Role.INSTRUCTOR);
         course.setTeacher(user);
         user.setCourse(course);
         user.setLocalDate(LocalDate.now());
@@ -111,17 +109,15 @@ public class TeacherService {
         return mapToResponse(user);
     }
 
-    public String delete(Long teacherId) {
-        userRepository.deleteById(teacherId);
-//        System.out.println("I'm in teacher service");
-//        User user = userRepository.findById(teacherId).get();
-////        userRepository.deleteById(teacherId);
-//        userRepository.delete(user);
-////        System.out.println(userRepository.findById(teacherId));
-//        log.error("TTTTRURRFDJHSJFSAJKFF");
-////
-//        userRepository.delete(user);
-        return "Successfully deleted user with id : " + teacherId;
+    public void deleteTeacher(Long id) {
+        User teacher = userRepository.findById(id).get();
+        if (!id.equals(teacher.getId())&&teacher.getRole().equals(Role.INSTRUCTOR)) {
+            log.error("User not foud!");
+        } else {
+            teacher.removeCourse();
+            userRepository.delete(teacher);
+        }
+
     }
 
     public TeacherResponseView searchAndPagination(String text, int page, int size) {
@@ -144,6 +140,14 @@ public class TeacherService {
 
     private List<User> search(String text, Pageable pageable) {
         String name = text == null ? "" : text;
-        return userRepository.searchAndPagination(text, pageable);
+        List<User> users = userRepository.searchAndPagination(name.toUpperCase(), pageable);
+        List<User> instructors = new ArrayList<>();
+        for (User user : users) {
+            if (user.getRole() == Role.INSTRUCTOR) {
+                instructors.add(user);
+            }
+
+        }
+        return instructors;
     }
 }

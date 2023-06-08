@@ -62,7 +62,7 @@ public class StudentService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
-                .roleName(user.getRole().name())
+                .roleName(String.valueOf(Role.STUDENT))
                 .studyFormat(user.getStudyFormation().toString())
                 .isActivity(user.getIsActive())
                 .isDelete(user.getIsDeleted())
@@ -72,7 +72,7 @@ public class StudentService {
 
     public StudentResponse getStudentById(Long id) {
         User user = userRepository.findById(id).get();
-        if (id != user.getId()) {
+        if (!id.equals(user.getId()) && user.getRole() == Role.STUDENT) {
             log.error("not found");
             throw new UsernameNotFoundException("Not found");
 
@@ -84,21 +84,30 @@ public class StudentService {
     public StudentResponse updateStudent(Long studentId, StudentRequest request) {
         Group group = groupRepository.findById(request.getGroupId()).get();
         User student = userRepository.findById(studentId).get();
+        List<User>students=new ArrayList<>();
         student.setFirstName(request.getFirstName());
         student.setLastName(request.getLastName());
         student.setEmail(request.getEmail());
         student.setPassword(request.getPassword());
-        student.setRole(Role.valueOf(request.getRoleName()));
+        student.setRole(Role.STUDENT);
         student.setStudyFormation(StudyFormation.valueOf(request.getStudyFormat()));
+        students.add(student);
         student.setGroup(group);
+        group.setStudents(students);
         userRepository.save(student);
         return mapToResponse(student);
     }
 
 
-    public String delete(Long studentId) {
-        userRepository.deleteById(studentId);
-        return "Successfully deleted user with id : " + studentId;
+    public void delete(Long studentId) {
+        User user = userRepository.findById(studentId).get();
+        if (!(studentId.equals(user.getId())) && user.getRole().equals(Role.STUDENT)) {
+            log.error("Not found");
+
+
+        } else {
+            userRepository.delete(user);
+        }
     }
 
     public StudentResponseView searchAndPagination(String text, int page, int size) {
@@ -121,6 +130,15 @@ public class StudentService {
 
     private List<User> search(String text, Pageable pageable) {
         String name = text == null ? "" : text;
-        return userRepository.searchAndPagination(text, pageable);
+        List<User> users = userRepository.searchAndPagination(name.toUpperCase(), pageable);
+        List<User> students = new ArrayList<>();
+        for (User user : users) {
+            if (user.getRole() == Role.STUDENT) {
+                students.add(user);
+            }
+        }
+        return students;
+
+
     }
 }

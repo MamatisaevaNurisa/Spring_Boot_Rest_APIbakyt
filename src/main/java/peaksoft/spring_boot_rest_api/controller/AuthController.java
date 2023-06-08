@@ -40,7 +40,7 @@ public class AuthController {
     @Operation(summary = "sign on",description ="User can sign in")
     public LoginResponse signIn(@RequestBody LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken token =
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
         authenticationManager.authenticate(token);
 
         User user = userRepository.findByEmail(token.getName()).get();
