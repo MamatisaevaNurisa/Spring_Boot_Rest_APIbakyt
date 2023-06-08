@@ -44,7 +44,6 @@ public class UserService {
         System.out.println("I'm in response method");
         return UserResponse.builder()
                 .id(user.getId())
-                .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())

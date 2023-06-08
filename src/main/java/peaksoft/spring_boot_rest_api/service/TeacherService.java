@@ -53,22 +53,11 @@ public class TeacherService {
         user.setPassword(passwordEncoder.encode(teacherRequest.getPassword()));
         user.setRole(Role.INSTRUCTOR);
         user.setLocalDate(LocalDate.now());
+        course.setTeacher(user);
         user.setCourse(course);
         userRepository.save(user);
         return mapToResponse(user);
     }
-
-//    public User mapToEntity(TeacherRequest request) {
-//        User teacher = new User();
-//        teacher.setFirstName(request.getFirstName());
-//        teacher.setLastName(request.getLastName());
-//        teacher.setEmail(request.getEmail());
-//        teacher.setRole(Role.valueOf(request.getRoleName()));
-//        teacher.setPassword(passwordEncoder.encode(request.getPassword()));
-//        teacher.setIsActive(teacher.getIsActive());
-//        teacher.setIsDeleted(teacher.getIsDeleted());
-//        teacher.setLocalDate(LocalDate.now());
-//        return teacher;
 
     public TeacherResponse mapToResponse(User user) {
         return TeacherResponse.builder()
@@ -105,14 +94,15 @@ public class TeacherService {
         course.setTeacher(user);
         user.setCourse(course);
         user.setLocalDate(LocalDate.now());
+        course.setTeacher(user);
         userRepository.save(user);
         return mapToResponse(user);
     }
 
     public void deleteTeacher(Long id) {
         User teacher = userRepository.findById(id).get();
-        if (!id.equals(teacher.getId())&&teacher.getRole().equals(Role.INSTRUCTOR)) {
-            log.error("User not foud!");
+        if (!id.equals(teacher.getId()) && teacher.getRole().equals(Role.INSTRUCTOR)) {
+            log.error("User not found!");
         } else {
             teacher.removeCourse();
             userRepository.delete(teacher);
